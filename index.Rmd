@@ -8,22 +8,109 @@ author: Patrick Meyer
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r Load data (background), echo=FALSE}
+load("D:/NextCloud/Wissenschaft/Practical Machine Learning/Course Project/GlobalEnvironment.RData")
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r Load data}
+training = read.csv(file = "C:/Users/Patrick/Desktop/pml-training.csv")
+testing = read.csv(file = "C:/Users/Patrick/Desktop/pml-testing.csv")
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r Introduction}
+
+```
+
+```{r Loading libraries, echo=TRUE, results="hide", message=FALSE, warning=FALSE}
+library(caret)
+```
+After loading the data and the necessary packages we will take a close look at the data and preprocess it.
+In its raw form the training data has 160 variables with 19622 observations each. However, 67 of these variables consist of more than 97% missing values while the remaining 93 variables do not contain missing values at all. A similar case can be made for the testing data. Therefore, variables with missing values will be excluded.
+```{r Data Wrangling 1 - Missing values}
+#Check the dimensions of the training data
+dim(training)
+
+#Check for variables with and without missing values and exclude those with missing values
+sum(apply(training, 2, function(x) sum(is.na(x))/nrow(training) > 0.97))
+sum(apply(training, 2, function(x) sum(is.na(x))/nrow(training) == 0))
+training = training[,colSums(is.na(training)) == 0]
+
+#Check the dimensions of the testing data
+dim(testing)
+
+#Repeat the process for the testing data
+sum(apply(testing, 2, function(x) sum(is.na(x))/nrow(testing) == 1))
+sum(apply(testing, 2, function(x) sum(is.na(x))/nrow(testing) == 0))
+testing = testing[,colSums(is.na(testing)) == 0]
+```
+Next, we will remove all predictors from both sets with a variance close to zero since we can assume that a predictor with very little variance does not provide sufficient predictive value. This further reduces the number of variables to 59 for each data set.
+```{r Data Wrangling 2 - near zero variance predictors}
+#Check for cols with near zero variance and exclude them
+training = training[,-nearZeroVar(training)]
+testing = testing[,-nearZeroVar(testing)]
+
+dim(training)
+dim(testing)
+```
+Since we are interested in predicting the execution of a workout repetition with motion sensors we will further exclude variables that do not fit this description. This leaves us with 53 variables in each set.
+```{r Data Wrangling 3 - exclude time variables and id}
+
+head(training[1:6])
+head(testing[1:6])
+
+training = training[,-(1:6)]
+testing = testing[,-(1:6)]
+```
+As the next step of the preprocessing the classe variable we are interested in is turned into a factor variable for correct handling by the training methods.
+```{r Data Wrangling 4 - turn classe in to a factor variable}
+training$classe = as.factor(training$classe)
+
+```
+After the previous adjustments the training data can be split into a training set for the actual training and a validation set to test the accuracy of different algorithms.
+```{r Splitting the data}
+inBuild = createDataPartition(training$classe, p = 0.75, list = FALSE)
+validation = training[-inBuild,]
+training = training[inBuild,]
+
+```
+
+```{r Creating different models}
+
+```
+
+```{r Predicting the outcome with each model}
+#rpartPred = predict(rpartFit, newdata = validation)
+```
+
+```{r Accuracy of the rpart model}
+#confusionMatrix(testing$classe, rpartPred)
+```
+
+```{r Accuracy of the lda model}
+#confusionMatrix(testing$classe, ldaPred)
+```
+
+```{r Accuracy of the nb model}
+#confusionMatrix(testing$classe, nbPred)
+```
+
+```{r Accuracy of the gbm model}
+#confusionMatrix(testing$classe, gbmPred)
+```
+
+```{r Accuracy of the rf model}
+#confusionMatrix(testing$classe, rfPred)
+```
+
+```{r Accuracy of the rf with cross validation model}
+#confusionMatrix(testing$classe, rfPredControl)
+```
+
+```{r Applying the best model to the finalTest set}
+
+```
+
+
+
+
