@@ -416,8 +416,8 @@ summary {
 </div>
 
 
-<pre class="r"><code>training = read.csv(file = &quot;C:/Users/Patrick/Desktop/pml-training.csv&quot;)
-testing = read.csv(file = &quot;C:/Users/Patrick/Desktop/pml-testing.csv&quot;)</code></pre>
+<pre class="r"><code>training = read.csv(file = &quot;../pml-training.csv&quot;)
+testing = read.csv(file = &quot;../pml-testing.csv&quot;)</code></pre>
 <pre class="r"><code>library(caret)</code></pre>
 <p>After loading the data and the necessary packages we will take a close look at the data and preprocess it. In its raw form the training data has 160 variables with 19622 observations each. However, 67 of these variables consist of more than 97% missing values while the remaining 93 variables do not contain missing values at all. A similar case can be made for the testing data. Therefore, variables with missing values will be excluded.</p>
 <pre class="r"><code>#Check the dimensions of the training data
@@ -486,13 +486,15 @@ testing = testing[,-(1:6)]</code></pre>
 <p>After the previous adjustments the training data can be split into a training set for the actual training and a validation set to test the accuracy of different algorithms.</p>
 <pre class="r"><code>inBuild = createDataPartition(training$classe, p = 0.75, list = FALSE)
 validation = training[-inBuild,]
-training = training[inBuild,]
-dim(training)</code></pre>
-<pre><code>## [1] 14718    53</code></pre>
-<pre class="r"><code>dim(testing)</code></pre>
-<pre><code>## [1] 20 53</code></pre>
-<pre class="r"><code>dim(validation)</code></pre>
-<pre><code>## [1] 4904   53</code></pre>
+training = training[inBuild,]</code></pre>
+<pre class="r"><code>#rpartFit = train(classe ~ ., data = training, method = &quot;rpart&quot; )
+#fitControl = trainControl(method = &quot;repeatedcv&quot;, number = 10, repeats = 10)
+#nbFit = train(classe ~ ., data = training, method = &quot;nb&quot;)
+#rfFit = train(classe ~ ., data = training, method = &quot;rf&quot;)
+#rfControlFit = train(classe ~ ., data = training, method = &quot;rf&quot;, trControl = #fitControl)
+
+print(4+5)</code></pre>
+<pre><code>## [1] 9</code></pre>
 <pre class="r"><code>#rpartPred = predict(rpartFit, newdata = validation)</code></pre>
 <pre class="r"><code>#confusionMatrix(testing$classe, rpartPred)</code></pre>
 <pre class="r"><code>#confusionMatrix(testing$classe, ldaPred)</code></pre>

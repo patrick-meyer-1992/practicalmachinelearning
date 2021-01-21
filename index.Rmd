@@ -9,18 +9,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r Load data (background), echo=FALSE}
-load("D:/NextCloud/Wissenschaft/Practical Machine Learning/Course Project/GlobalEnvironment.RData")
+load("../GlobalEnvironment.RData")
 ```
-
-```{r Load data}
-training = read.csv(file = "C:/Users/Patrick/Desktop/pml-training.csv")
-testing = read.csv(file = "C:/Users/Patrick/Desktop/pml-testing.csv")
-```
-
 
 ```{r Introduction}
 
 ```
+
+```{r Load data}
+training = read.csv(file = "../pml-training.csv")
+testing = read.csv(file = "../pml-testing.csv")
+```
+
+
+
 
 ```{r Loading libraries, echo=TRUE, results="hide", message=FALSE, warning=FALSE}
 library(caret)
@@ -75,7 +77,17 @@ training = training[inBuild,]
 
 ```
 
-```{r Creating different models}
+```{r Creating different models, eval = FALSE}
+rpartFit = train(classe ~ ., data = training, method = "rpart")
+ldaFit = train(classe ~ ., data = training, method = "lda")
+nbFit = train(classe ~ ., data = training, method = "nb")
+gbmFit = train(classe ~ ., data = training, method = "gbm")
+rfFit = train(classe ~ ., data = training, method = "rf")
+
+fitControl = trainControl(method = "repeatedcv", number = 10, repeats = 10)
+rfControlFit = train(classe ~ ., data = training, method = "rf", trControl = fitControl)
+rfControlPreProFit = train(classe ~ ., data = training, method = "rf", 
+                           trControl = fitControl, preProcess = "pca")
 
 ```
 
