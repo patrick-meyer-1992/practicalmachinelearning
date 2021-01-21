@@ -418,13 +418,15 @@ summary {
 
 <p>This report was down as part of the Practical Machine Learning class by the John Hopkins University on coursera.org. It is meant to demonstrate some basic data cleaning tasks and the subsequent training of different predictions models.</p>
 <p>The data was provided by this website <a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a> and can be downloaded via the following links.</p>
-<p>training: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv</a> testing: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a></p>
-<p>The data consists of measurements from different smart devices which were worn by participants while doing dumbbell exercises specifically instructed ways. The goal of this analysis is to predict the used specification (the classe variable) with the data provided by the smart devices.</p>
+<p>training: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv</a></p>
+<p>testing: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a></p>
+<p>The data consists of measurements from different smart devices which were worn by participants while doing dumbbell exercises in specifically instructed ways. The goal of this analysis is to predict the used specification (the classe variable) with the data provided by the smart devices.</p>
 <p>From the used models the one using the random forest method performed best and was therefore used to predict the classe variable on the testing set.</p>
+<p>We start by loading the data and the necessary libraries.</p>
 <pre class="r"><code>training = read.csv(file = &quot;../pml-training.csv&quot;)
 testing = read.csv(file = &quot;../pml-testing.csv&quot;)</code></pre>
 <pre class="r"><code>library(caret)</code></pre>
-<p>After loading the data and the necessary packages we will take a close look at the data and preprocess it. In its raw form the training data has 160 variables with 19622 observations each. However, 67 of these variables consist of more than 97% missing values while the remaining 93 variables do not contain missing values at all. A similar case can be made for the testing data. Therefore, variables with missing values will be excluded.</p>
+<p>After loading the data and the necessary packages we will take a closer look at the data and preprocess it. In its raw form the training data has 160 variables with 19622 observations each. However, 67 of these variables consist of more than 97% missing values while the remaining 93 variables do not contain missing values at all. A similar case can be made for the testing data. Therefore, variables with missing values will be excluded.</p>
 <pre class="r"><code>#Check the dimensions of the training data
 dim(training)</code></pre>
 <pre><code>## [1] 19622   160</code></pre>
@@ -492,7 +494,7 @@ testing = testing[,-(1:6)]</code></pre>
 <pre class="r"><code>inBuild = createDataPartition(training$classe, p = 0.75, list = FALSE)
 validation = training[-inBuild,]
 training = training[inBuild,]</code></pre>
-<p>The next step is training models with the data by using different algorithms. In this particular case we use a tree based prediction (rpart), linear discriminant analysis (lda), boosting with trees (gbm) and random forests (rf). The rf-training will be repeated with a trainControl-object included.</p>
+<p>The next step is training models with the data by using different algorithms. In this particular case we use a tree based prediction (rpart), linear discriminant analysis (lda), boosting with trees (gbm) and random forests (rf). The rf-training will be repeated with cross validation.</p>
 <pre class="r"><code>#Train different models
 rpartFit = train(classe ~ ., data = training, method = &quot;rpart&quot;)
 ldaFit = train(classe ~ ., data = training, method = &quot;lda&quot;)
@@ -509,7 +511,7 @@ ldaFit = predict(ldaFit, newdata = validation)
 gbmPred = predict(gbmFit, newdata = validation)
 rfPred = predict(rfFit, newdata = validation)
 rfControlPred = predict(rfControlFit, newdata = validation)</code></pre>
-<p>The following part shows the confusion matrix for each prediction, ordered by increasing Accuracy. The rpart and the lda method did not yield sufficiently accurate results with only ~50% and ~70% Accuracy, respectively. However, gbm and rf provided reliable results with over 97% Accuracy. Re-training the rf model with cross validation did improve Accuracy but only by the neglible amount of 0.04%.</p>
+<p>The following part shows the confusion matrix for each prediction, ordered by increasing accuracy. The rpart and the lda method did not yield sufficiently accurate results with only ~50% and ~70% accuracy, respectively. However, gbm and rf provided reliable results with over 97% accuracy. Re-training the rf model with cross validation did improve accuracy but only by the neglible amount of 0.04%.</p>
 <pre class="r"><code>confusionMatrix(validation$classe, rpartPred)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 

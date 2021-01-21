@@ -24,7 +24,7 @@ training: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
 
 testing: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
 
-The data consists of measurements from different smart devices which were worn by participants while doing dumbbell exercises specifically instructed ways. The goal of this analysis is to predict the used specification (the classe variable) with the data provided by the smart devices. 
+The data consists of measurements from different smart devices which were worn by participants while doing dumbbell exercises in specifically instructed ways. The goal of this analysis is to predict the used specification (the classe variable) with the data provided by the smart devices. 
 
 From the used models the one using the random forest method performed best and was therefore used to predict the classe variable on the testing set. 
 
