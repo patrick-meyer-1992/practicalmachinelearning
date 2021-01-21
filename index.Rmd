@@ -15,19 +15,29 @@ load("../GlobalEnvironment.RData")
 ```{r Introduction}
 
 ```
+This report was down as part of the Practical Machine Learning class by the John Hopkins University on coursera.org.
+It is meant to demonstrate some basic data cleaning tasks and the subsequent training of different predictions models.
 
+The data was provided by this website http://groupware.les.inf.puc-rio.br/har and can be downloaded via the following links.
+
+training: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
+testing: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+The data consists of measurements from different smart devices which were worn by participants while doing dumbbell exercises specifically instructed ways. The goal of this analysis is to predict the used specification (the classe variable) with the data provided by the smart devices. 
+
+From the used models the one using the random forest method performed best and was therefore used to predict the classe variable on the testing set. 
+
+We start by loading the data and the necessary libraries.
 ```{r Load data}
 training = read.csv(file = "../pml-training.csv")
 testing = read.csv(file = "../pml-testing.csv")
 ```
 
-
-
-
 ```{r Loading libraries, echo=TRUE, results="hide", message=FALSE, warning=FALSE}
 library(caret)
 ```
-After loading the data and the necessary packages we will take a close look at the data and preprocess it.
+After loading the data and the necessary packages we will take a closer look at the data and preprocess it.
 In its raw form the training data has 160 variables with 19622 observations each. However, 67 of these variables consist of more than 97% missing values while the remaining 93 variables do not contain missing values at all. A similar case can be made for the testing data. Therefore, variables with missing values will be excluded.
 ```{r Data Wrangling 1 - Missing values}
 #Check the dimensions of the training data
@@ -76,51 +86,53 @@ validation = training[-inBuild,]
 training = training[inBuild,]
 
 ```
-
+The next step is training models with the data by using different algorithms. In this particular case we use a tree based prediction (rpart), linear discriminant analysis (lda), boosting with trees (gbm) and random forests (rf). The rf-training will be repeated with cross validation.
 ```{r Creating different models, eval = FALSE}
+#Train different models
 rpartFit = train(classe ~ ., data = training, method = "rpart")
 ldaFit = train(classe ~ ., data = training, method = "lda")
-nbFit = train(classe ~ ., data = training, method = "nb")
 gbmFit = train(classe ~ ., data = training, method = "gbm")
 rfFit = train(classe ~ ., data = training, method = "rf")
 
+#Create a control object for training
 fitControl = trainControl(method = "repeatedcv", number = 10, repeats = 10)
+#Train another rf-model with the control object as parameter
 rfControlFit = train(classe ~ ., data = training, method = "rf", trControl = fitControl)
-rfControlPreProFit = train(classe ~ ., data = training, method = "rf", 
-                           trControl = fitControl, preProcess = "pca")
 
 ```
-
+We use each of the calculated models to predict the classe outcomes of the validation set.
 ```{r Predicting the outcome with each model}
-#rpartPred = predict(rpartFit, newdata = validation)
+rpartPred = predict(rpartFit, newdata = validation)
+ldaFit = predict(ldaFit, newdata = validation)
+gbmPred = predict(gbmFit, newdata = validation)
+rfPred = predict(rfFit, newdata = validation)
+rfControlPred = predict(rfControlFit, newdata = validation)
 ```
 
+The following part shows the confusion matrix for each prediction, ordered by increasing accuracy. The rpart and the lda method did not yield sufficiently accurate results with only ~50% and ~70% accuracy, respectively. However, gbm and rf provided reliable results with over 97% accuracy. Re-training the rf model with cross validation did improve accuracy but only by the neglible amount of 0.04%. 
 ```{r Accuracy of the rpart model}
-#confusionMatrix(testing$classe, rpartPred)
+confusionMatrix(validation$classe, rpartPred)
 ```
 
 ```{r Accuracy of the lda model}
-#confusionMatrix(testing$classe, ldaPred)
-```
-
-```{r Accuracy of the nb model}
-#confusionMatrix(testing$classe, nbPred)
+confusionMatrix(validation$classe, ldaPred)
 ```
 
 ```{r Accuracy of the gbm model}
-#confusionMatrix(testing$classe, gbmPred)
+confusionMatrix(validation$classe, gbmPred)
 ```
 
 ```{r Accuracy of the rf model}
-#confusionMatrix(testing$classe, rfPred)
+confusionMatrix(validation$classe, rfPred)
 ```
 
-```{r Accuracy of the rf with cross validation model}
-#confusionMatrix(testing$classe, rfPredControl)
+```{r Accuracy of the rf model with cross validation}
+confusionMatrix(validation$classe, rfControlPred)
 ```
 
+Since the rf model with included cross validation performed best on the validation it will be used the predict the classe variable of the testing set.
 ```{r Applying the best model to the finalTest set}
-
+predict(rfControlFit, newdata = testing)
 ```
 
 
